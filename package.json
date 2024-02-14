@@ -1,0 +1,19 @@
+{
+    "name": "crmgraphql",
+    "version": "1.0.0",
+    "description": "graphql",
+    "main": "index.js",
+    "scripts": {
+        "start": "node .",
+        "dev": "nodemon ."
+    },
+    "author": "Carlos Alberto Albendiz Paez",
+    "dependencies": {
+        "apollo-server": "^3.13.0",
+        "dotenv": "^16.4.4",
+        "mongoose": "^8.1.2"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.3"
+    }
+}
