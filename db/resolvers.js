@@ -1,4 +1,5 @@
 const User = require('../model/User')
+const Product = require('../model/Product')
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config({ path: '.env' })
@@ -21,6 +22,26 @@ const resolvers = {
         getUser: async (_, { token }) => {
             const userId = await jwt.verify(token, process.env.TOKEN_SECRET)
             return userId
+        },
+        getProduct: async () => {
+
+            try {
+                const products = await Product.find({})
+                return products
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        getProductId: async (_, { id }) => {
+
+            // revisar si el producto esta registrado
+
+            const existProduct = await Product.findById(id)
+
+            if (!existProduct) {
+                throw new Error('No exist this product')
+            }
+            return existProduct
         }
     },
     Mutation: {
@@ -34,7 +55,6 @@ const resolvers = {
             if (existUser) {
                 throw new Error("Exist this user")
             }
-            console.log('------>', existUser)
             //HASHEAR SU PASSWORD
             // importante tuve un error ya que anteriormente se usaba el metodo getsalt
             //en estos momentos se usar gensalt en versiones mas modernas
@@ -70,7 +90,44 @@ const resolvers = {
             return {
                 token: createToken(existUser, process.env.TOKEN_SECRET, '24h')
             }
-        }
+        },
+
+        createProduct: async (_, { input }) => {
+            try {
+                const product = new Product(input);
+                const result = await product.save(); //AQUI SE GUARDA
+                return result
+            } catch (error) {
+                console.log(error)
+            }
+
+        },
+        updateProduct: async (_, { id, input }) => {
+            //revisdamos si existe ese producto 
+            let existProductAndEdit = await Product.findById(id)
+
+            if (!existProductAndEdit) {
+                throw new Error('No exist this product')
+            }
+            // si existe editamos y  guardamos en la bbdd
+
+            existProductAndEdit = await Product.findOneAndUpdate({ _id: id }, input, { new: true })
+            return existProductAndEdit
+
+        },
+        deletedProduct: async (_, { id }) => {
+            //revisdamos si existe ese producto 
+            let existProductAndDeleted = await Product.findById(id)
+
+            if (!existProductAndDeleted) {
+                throw new Error('No exist this product')
+            }
+            // si existe editamos y  guardamos en la bbdd
+
+            await Product.findOneAndDelete({ _id: id });
+            return "product deleted"
+
+        },
     }
 }
 module.exports = resolvers;

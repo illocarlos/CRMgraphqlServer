@@ -1,7 +1,7 @@
 const { default: mongoose } = require('mongoose')
 const moongose = require('mongoose')
 
-const usersSchema = moongose.Schema({
+const UsersSchema = moongose.Schema({
     name: {
         type: String,
         require: true,
@@ -43,4 +43,4 @@ const usersSchema = moongose.Schema({
 
 
 })
-module.exports = mongoose.model('User', usersSchema)
+module.exports = mongoose.model('User', UsersSchema)

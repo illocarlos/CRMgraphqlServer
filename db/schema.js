@@ -22,6 +22,8 @@ const { gql } = require('apollo-server')
 //
 const typeDefs = gql`
 
+   #MODEL TYPE!!!!!
+
 type User{
     id:ID   
 name:String
@@ -36,6 +38,17 @@ type Token{
 token:String
 }
 
+type Product{
+    id:ID   
+name:String
+stock:Int
+price:Float
+create:String
+}
+
+
+
+   #INPUT!!!!
 
 input UserInput{
 name:String!
@@ -45,24 +58,38 @@ age:Int!
 password:String!
 }
 
+input ProductInput{
+name:String!
+stock:Int!
+price:Float!
+}
+
 input AutenticateInput{
     email:String!
     password:String!
 }
 
+   #QUERY/MUTATION!!!!!
 
 type Query{
+    #dame usuario su info
     getUser(token:String!):User
+
+    #dame product su info
+       getProduct:[Product]
+           getProductId(id:ID!):Product
 
 }
 
 type Mutation{
-    
-
+    #usuario
   createUser(input:UserInput):User
-
     autenticateUser(input:AutenticateInput):Token
 
+    #productos
+      createProduct(input:ProductInput):Product
+      updateProduct(id:ID!,input:ProductInput):Product
+         deletedProduct(id:ID!):String
 }
 
     `;
