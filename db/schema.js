@@ -45,6 +45,32 @@ stock:Int
 price:Float
 create:String
 }
+type Client{
+    id:ID   
+name:String
+surnames:String
+email:String
+phone:String
+company:String
+create:String
+seller:ID
+
+}
+
+type Order{
+    id:ID  
+    order :[OrderGroup]
+    total:Float
+    state:String
+    create:String
+    client:ID
+seller:ID
+
+}
+type OrderGroup{
+    id:ID
+    Stock:Int
+}
 
 
 
@@ -64,6 +90,46 @@ stock:Int!
 price:Float!
 }
 
+#le pasamos el esquema de cliente pero no le pasamos el seller como aparece en el modelo
+#por que se la pasamos via context en resolvers es una de las pocas cosas en la que se usa context 
+
+input ClientInput{
+name:String!
+surnames:String!
+email:String!
+company:String!
+phone:String
+
+}
+
+# Principio input Order 
+
+
+input OrderInput{
+order:[OrderProductInput]
+total:Float!
+client:ID!
+state:StateOrder
+}
+input OrderProductInput{
+    id:ID
+    stock:Int
+}
+
+#ESTE ENUM ES CE GRAPHQL ES LA FORMA DE CONECTAR UN INPUT CON OTRO 
+#EN ESTE CASO QUEREMOS DAR A UN ESTADO TRES OPCIONES QUE SOLO SE PUEDAN ELEGIR UNA DE ESAS TRES 
+enum StateOrder{
+   EARRING 
+   COMPLETE
+   CANCEL
+}
+
+
+# fin Order
+
+
+
+
 input AutenticateInput{
     email:String!
     password:String!
@@ -75,13 +141,25 @@ type Query{
     #dame usuario su info
     getUser(token:String!):User
 
-    #dame product su info
+    #QUERY PRODUCT
+    #todo los producto
        getProduct:[Product]
+
+       #dame solo uno
            getProductId(id:ID!):Product
+
+               #QUERY CLIENT
+               #dame todo client su info
+                 getClients:[Client]
+                 #dame los clientes de cada vendedor
+                       getClientsSeller:[Client]
+                          #dame solo un clientes 
+                       getOnlyClient(id:ID!):Client
 
 }
 
 type Mutation{
+
     #usuario
   createUser(input:UserInput):User
     autenticateUser(input:AutenticateInput):Token
@@ -90,7 +168,18 @@ type Mutation{
       createProduct(input:ProductInput):Product
       updateProduct(id:ID!,input:ProductInput):Product
          deletedProduct(id:ID!):String
+
+         #Cliente
+               createClient(input:ClientInput):Client
+                     updateClient(id:ID!,input:ClientInput):Client
+                        deletedClient(id:ID!):String
+
+                   #Pedidos
+                                  createOrder(input:OrderInput):Order
+
+                
 }
+
 
     `;
 

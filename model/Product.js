@@ -4,17 +4,17 @@ const moongose = require('mongoose')
 const ProductSchema = moongose.Schema({
     name: {
         type: String,
-        require: true,
+        required: true,
         trim: true,
     },
     stock: {
         type: Number,
-        require: true,
+        required: true,
         trim: true,
     },
     price: {
         type: Number,
-        require: true,
+        required: true,
         trim: true,
     },
     create: {

@@ -4,23 +4,23 @@ const moongose = require('mongoose')
 const UsersSchema = moongose.Schema({
     name: {
         type: String,
-        require: true,
+        required: true,
         trim: true,
     },
     surnames: {
         type: String,
-        require: true,
+        required: true,
         trim: true,
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         trim: true,
         unique: true
     },
     password: {
         type: String,
-        require: true,
+        required: true,
         trim: true,
     },
     create: {
@@ -32,7 +32,7 @@ const UsersSchema = moongose.Schema({
     },
     age: {
         type: Date,
-        require: true,
+        required: true,
     },
     NID: {
         type: String,
