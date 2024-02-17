@@ -1,6 +1,8 @@
 const User = require('../model/User')
 const Product = require('../model/Product')
 const Client = require('../model/Client')
+const Order = require('../model/Order')
+
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 require('dotenv').config({ path: '.env' })
@@ -230,6 +232,7 @@ const resolvers = {
 
             let existClient = await Client.findById(client)
 
+
             if (!existClient) {
 
                 throw new error("no exist client")
@@ -240,20 +243,31 @@ const resolvers = {
                 throw new error("you have not credential")
             }
             //revisar que tenga stock
-
             for await (const article of input.order) {
-                const { id } = element
+
+                const { id } = article
                 const product = await Product.findById(id)
+
+                console.log('.....', product.stock, article.stock)
 
                 if (article.stock > product.stock) {
                     throw new error("exceeds the amount")
+                } else {
+                    //restamos la cantidad para que lo axtualice la bbdd
+                    product.stock = product.stock - article.stock
+                    await product.save()
                 }
             };
+            // crear pedido
+            const newOrder = new Order(input)
 
             // asignar vendedor
+            newOrder.seller = ctx.user.id
 
-
+            console.log('-----', newOrder)
             // guardar order
+            const result = await newOrder.save()
+            return result
         }
     }
 }

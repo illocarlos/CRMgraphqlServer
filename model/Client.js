@@ -31,7 +31,7 @@ const ClientSchema = mongoose.Schema({
         default: Date.now()
     },
     // este valor se usar para conectar el modelo cliente con el modelo user que es el vendero
-    Date: {
+    seller: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
