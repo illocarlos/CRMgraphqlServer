@@ -8,7 +8,6 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config({ path: '.env' })
 
 const createToken = (user, tokenSecret, expiresIn) => {
-    console.log(user)
     const { name, surnames, email, id } = user
     return jwt.sign({ id, name, surnames, email }, tokenSecret, { expiresIn })
 }
@@ -75,7 +74,6 @@ const resolvers = {
             // revisar si el Cliente esta registrado
 
             const client = await Client.findById(id)
-            console.log('--->', client)
 
             if (!client) {
                 throw new Error('No exist this Client')
@@ -109,7 +107,6 @@ const resolvers = {
             // revisar si el Pedido esta registrado
 
             const order = await Order.findById(id)
-            // console.log('--->', order)
 
             if (!order) {
                 throw new Error('No exist this order')
@@ -120,8 +117,99 @@ const resolvers = {
             return order
 
         },
+        getOrderState: async (_, { state }, ctx) => {
+            const seller = ctx.user.id
+            const order = await Order.find({ seller, state })
+            return order
+
+        },
+        // filtros avanzados son busquedad de mejores clientes,buscar nombre de producto ...
+        getTopClients: async () => {
+            // metodo aggregate para empezar te rotorna un solo resultado
+            //son funciones que podemos verificar obteniendo diferente valores 
+            //podemos hacer muchas operaciones dentro para retornar lo que pase esas verificaciones
+            const clients = await Order.aggregate([
+                // primera verificacion
+                // el match se usa para filtrar en mongo db solo se traera de la base de dato de orde los pedidod que tengan el state complete
+                { $match: { state: "COMPLETE" } },
+                // segunda verificacion
+                //cuanto nos compro el cliente
+                //group es una etapa de agregación en MongoDB que agrupa documentos según los criterios especificados.
+                {
+                    $group: {
+                        _id: "$client",       // Esta línea especifica que los documentos se agruparán por el campo 'client'. 
+                        total: { $sum: '$total' } // Esta línea calcula la suma de los valores del campo 'total' para cada grupo.
+                    }
+                },
+                // tercera verificacion
+                //lookup es una etapa de agregación en MongoDB que realiza una operación de unión entre dos colecciones.
+                {
+                    $lookup: {
+                        from: 'clients',            // Esta línea especifica la colección 'clients' desde la cual se va a realizar la unión.
+                        localField: '_id',         // Esta línea especifica el campo en la colección actual que se va a usar para la unión.
+                        foreignField: '_id',       // Esta línea especifica el campo en la colección 'clients' que se va a usar para la unión.
+                        as: 'client'               // Esta línea especifica el nombre del nuevo campo que se creará en los documentos de la colección actual para almacenar los resultados de la unión.
+                    }
+                },
+                {
+                    $limit: 10 //este  trae solo 10 cliente de la base de dato
+                },
+                //tercera verificacion sort se usa para ordenar en mongo
+                //en este caso estamos diciendole que cambie el orden del cliente con mayor cantidad en el total
+                {
+                    $sort: {
+                        total: { total: -1 }
+                    }
+                }
+            ])
+
+
+            return clients
+        },
+        getTopSellers: async () => {
+            const sellers = await Order.aggregate([
+                { $match: { state: "COMPLETE" } },
+                {
+                    $group: {
+                        _id: "$seller",
+                        total: { $sum: 'total' }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',            // Esta línea especifica la colección 'users' desde la cual se va a realizar la unión.
+                        localField: '_id',         // Esta línea especifica el campo en la colección actual que se va a usar para la unión.
+                        foreignField: '_id',       // Esta línea especifica el campo en la colección 'users' que se va a usar para la unión.
+                        as: 'seller'
+
+                    }
+                },
+                {
+                    $limit: 3 //este  trae solo 3 vendedores de la base de dato
+                },
+                {
+                    $sort: { total: -1 } // este ordena los vendedores del que tiene mayor total
+
+                }
+
+            ])
+            return sellers
+        },
+        //filtro para buscar productos por su nombre
+        searchProduct: async (_, { text }) => {
+            const products = await Product.find({ $text: { $search: text } }).$limit(10)
+            return products
+        }
+        //filtro cliente
+
+
+
+        //filtro seller
 
     },
+
+
+
     Mutation: {
         createUser: async (_, { input }) => {
             // sacamos el email y password de lo que recibimos del input
@@ -287,7 +375,6 @@ const resolvers = {
                 const { id } = article
                 const product = await Product.findById(id)
 
-                console.log('.....', product.stock, article.stock)
 
                 if (article.stock > product.stock) {
                     throw new error("exceeds the amount")
@@ -303,7 +390,6 @@ const resolvers = {
             // asignar vendedor
             newOrder.seller = ctx.user.id
 
-            console.log('-----', newOrder)
             // guardar order
             const result = await newOrder.save()
             return result
@@ -332,7 +418,6 @@ const resolvers = {
             }
 
             // revisar stock por si aumenta al editar  la cantidad
-            console.log('-------', order)
             if (order) {
                 for await (const article of order) {
 
@@ -356,20 +441,19 @@ const resolvers = {
         deletedOrder: async (_, { id }, ctx) => {
 
             const seller = ctx.user.id
-            const order = await Order.findById(id)
-
+            let order = await Order.findById(id)
             // verificar si existe el pedido
             if (!order) {
                 throw new error("no exist this order")
             }
             // verificar si el vendedor es el que lo borra
 
-            if (order.seller.toString() !== seller) {
+            if (order.seller.toString() !== ctx.user.id) {
                 throw new error("you have not credential")
             }
 
             await Order.findOneAndDelete({ _id: id });
-            return "Order deleted"
+            return "Client deleted"
         },
     }
 }

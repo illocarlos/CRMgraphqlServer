@@ -54,8 +54,8 @@ phone:String
 company:String
 create:String
 seller:ID
-
 }
+
 
 type Order{
     id:ID  
@@ -72,8 +72,15 @@ type OrderGroup{
     stock:Int
 }
 
+type TopClient{
+    total:Float
+  client:[Client]
+}
 
-
+type TopSeller{
+    total:Float
+    seller:[User]
+}
    #INPUT!!!!
 
 input UserInput{
@@ -156,6 +163,13 @@ type Query{
                              getOrders:[Order]
                              getOrdersPerSeller:[Order]
                               getOrderId(id:ID!):Order
+                              getOrderState(state:String!):[Order]!
+
+#Filtros avanzados
+getTopClients:[TopClient]
+getTopSellers:[TopSeller]
+searchProduct(text:String!):[Product]
+
 
 }
 
