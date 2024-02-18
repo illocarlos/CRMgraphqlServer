@@ -26,6 +26,7 @@ const resolvers = {
             const userId = await jwt.verify(token, process.env.TOKEN_SECRET)
             return userId
         },
+        //QUERY PRODUCT
         getProduct: async () => {
 
             try {
@@ -46,6 +47,8 @@ const resolvers = {
             }
             return existProduct
         },
+
+        //query CLIENT
         getClients: async () => {
 
             try {
@@ -81,7 +84,43 @@ const resolvers = {
                 throw new Error('you have not credentials')
             }
             return client
-        }
+        },
+        //QUERY ORDER
+        getOrders: async () => {
+
+            try {
+                const orders = await Order.find({})
+                return orders
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        getOrdersPerSeller: async (_, { }, ctx) => {
+            const seller = ctx.user.id
+            try {
+                const orders = await Order.find({ seller })
+                return orders
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        getOrderId: async (_, { id }, ctx) => {
+            const seller = ctx.user.id
+            // revisar si el Pedido esta registrado
+
+            const order = await Order.findById(id)
+            // console.log('--->', order)
+
+            if (!order) {
+                throw new Error('No exist this order')
+            }
+            if (order.seller.toString() !== seller) {
+                throw new Error('you have not credentials')
+            }
+            return order
+
+        },
+
     },
     Mutation: {
         createUser: async (_, { input }) => {
@@ -268,7 +307,70 @@ const resolvers = {
             // guardar order
             const result = await newOrder.save()
             return result
-        }
+        },
+        updateOrder: async (_, { id, input }, ctx) => {
+            const { client } = input
+            const { order } = input
+            const seller = ctx.user.id
+
+            // verificar si existe pedido
+            const existorder = await Order.findById(id)
+            if (!existorder) {
+                throw new error("no existe this order")
+            }
+            // verificar si existe cliente 
+            //le pàsamos el id del cliente que lo lleva el input dentro y le hacemos una busqueda con el id del cliente del objeto de order
+            //que lleva dentro el id del cliente y buscamos en la bbdd de clientes si esta con findbyid
+            const existClient = await Client.findById(client)
+
+            if (!existClient) {
+                throw new error("no existe this client")
+            }
+            // verificar si el vendedor edita y si el cliente pertenece al vendedor
+            if (existClient.seller.toString() !== seller) {
+                throw new error("you have not credential")
+            }
+
+            // revisar stock por si aumenta al editar  la cantidad
+            console.log('-------', order)
+            if (order) {
+                for await (const article of order) {
+
+                    const { id } = article
+                    const product = await Product.findById(id)
+
+                    if (article.stock > product.stock) {
+                        throw new error("exceeds the amount")
+                    } else {
+                        //restamos la cantidad para que lo axtualice la bbdd
+                        product.stock = product.stock - article.stock
+                        await product.save()
+                    }
+                };
+            }
+            // guardar cliente ( el new :true  se usa para que retorne el nuevo cliente)
+            const result = await Order.findOneAndUpdate({ _id: id }, input, { new: true })
+            return result
+
+        },
+        deletedOrder: async (_, { id }, ctx) => {
+
+            const seller = ctx.user.id
+            const order = await Order.findById(id)
+
+            // verificar si existe el pedido
+            if (!order) {
+                throw new error("no exist this order")
+            }
+            // verificar si el vendedor es el que lo borra
+
+            if (order.seller.toString() !== seller) {
+                throw new error("you have not credential")
+            }
+
+            await Order.findOneAndDelete({ _id: id });
+            return "Order deleted"
+        },
     }
 }
 module.exports = resolvers;

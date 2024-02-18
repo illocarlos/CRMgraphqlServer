@@ -69,7 +69,7 @@ seller:ID
 }
 type OrderGroup{
     id:ID
-    Stock:Int
+    stock:Int
 }
 
 
@@ -107,8 +107,8 @@ phone:String
 
 input OrderInput{
 order:[OrderProductInput]
-total:Float!
-client:ID!
+total:Float
+client:ID
 state:StateOrder
 }
 input OrderProductInput{
@@ -126,10 +126,6 @@ enum StateOrder{
 
 
 # fin Order
-
-
-
-
 input AutenticateInput{
     email:String!
     password:String!
@@ -156,6 +152,11 @@ type Query{
                           #dame solo un clientes 
                        getOnlyClient(id:ID!):Client
 
+                       #QUERY ORDER
+                             getOrders:[Order]
+                             getOrdersPerSeller:[Order]
+                              getOrderId(id:ID!):Order
+
 }
 
 type Mutation{
@@ -176,6 +177,8 @@ type Mutation{
 
                    #Pedidos
                                   createOrder(input:OrderInput):Order
+                                  updateOrder(id:ID!,input:OrderInput):Order
+                                             deletedOrder(id:ID!):String
 
                 
 }
