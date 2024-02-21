@@ -29,9 +29,7 @@ type User{
 name:String
 surnames:String
 email:String
-age:Int
 create:String
-NID:String
 }
 
 type Token{
@@ -87,7 +85,6 @@ input UserInput{
 name:String!
 surnames:String!
 email:String!
-age:Int!
 password:String!
 }
 
@@ -142,7 +139,7 @@ input AutenticateInput{
 
 type Query{
     #dame usuario su info
-    getUser(token:String!):User
+    getUser:User
 
     #QUERY PRODUCT
     #todo los producto
@@ -169,6 +166,8 @@ type Query{
 getTopClients:[TopClient]
 getTopSellers:[TopSeller]
 searchProduct(text:String!):[Product]
+searchClient(text:String!):[Client]
+searchSeller(text:String!):[User]
 
 
 }

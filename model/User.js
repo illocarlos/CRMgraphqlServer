@@ -30,17 +30,7 @@ const UsersSchema = moongose.Schema({
         //en este caso es poner la fecha exacta en la que se creo 
         default: Date.now()
     },
-    age: {
-        type: Date,
-        required: true,
-    },
-    NID: {
-        type: String,
-        default: function () {
-            return this.name + this.surnames + this.age;
-        }
-    }
-
 
 })
+UsersSchema.index({ surnames: 'text' });
 module.exports = mongoose.model('User', UsersSchema)

@@ -38,4 +38,5 @@ const ClientSchema = mongoose.Schema({
     }
 
 })
+ClientSchema.index({ surnames: 'text' });
 module.exports = moongose.model('Client', ClientSchema)

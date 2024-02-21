@@ -21,9 +21,8 @@ const resolvers = {
     //el 4 argumentos se conoce como info es el ma avanzado lo quito para que no genere ningun tipo de error
     //se suelen usar el segundo y tercero normalmente pero es para que sepas que existen
     Query: {
-        getUser: async (_, { token }) => {
-            const userId = await jwt.verify(token, process.env.TOKEN_SECRET)
-            return userId
+        getUser: async (_, { }, ctx) => {
+            return ctx.user
         },
         //QUERY PRODUCT
         getProduct: async () => {
@@ -197,15 +196,22 @@ const resolvers = {
         },
         //filtro para buscar productos por su nombre
         searchProduct: async (_, { text }) => {
-            const products = await Product.find({ $text: { $search: text } }).$limit(10)
+            const products = await Product.find({ $text: { $search: text } }).limit(10)
             return products
-        }
+        },
         //filtro cliente
-
+        //filtro para buscar productos por su nombre
+        searchClient: async (_, { text }) => {
+            const clients = await Client.find({ $text: { $search: text } }).limit(5)
+            return clients
+        },
 
 
         //filtro seller
-
+        searchSeller: async (_, { text }) => {
+            const sellers = await User.find({ $text: { $search: text } }).limit(5)
+            return sellers
+        }
     },
 
 
