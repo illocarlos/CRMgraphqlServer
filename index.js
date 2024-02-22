@@ -19,14 +19,13 @@ const server = new ApolloServer({
 
     context: ({ req }) => {
         const token = req.headers['authorization'] || ""
-        console.log('--->aaaaaaaaa', token)
+
 
         if (token) {
             try {
                 //importante Bearer parece que es absurdo por que se lo colocamos en el frontend y se lo quitamos en el backen
                 //pero es una forma de pasarle de manera limpia el token
                 const user = jwt.verify(token.replace('Bearer ', ''), process.env.TOKEN_SECRET)
-                console.log('------>', user)
 
                 return {
                     user

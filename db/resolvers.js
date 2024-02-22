@@ -22,6 +22,7 @@ const resolvers = {
     //se suelen usar el segundo y tercero normalmente pero es para que sepas que existen
     Query: {
         getUser: async (_, { }, ctx) => {
+            console.log('---->', ctx)
             return ctx.user
         },
         //QUERY PRODUCT
@@ -255,7 +256,7 @@ const resolvers = {
             //revisar si el password es correcto
             const passwordOK = await bcryptjs.compare(password, existUser.password)
             if (!passwordOK) {
-                throw new error("Password is not correct")
+                throw new Error("Password is not correct")
             }
 
             // crear token
@@ -308,7 +309,7 @@ const resolvers = {
             //verificar cliente
             const client = await Client.findOne({ email })
             if (client) {
-                throw new error("client register!!!!")
+                throw new Error("client register!!!!")
             }
             const newClient = new Client(input)
 
@@ -330,13 +331,13 @@ const resolvers = {
             let client = await Client.findById(id)
             // verificar si existe cliente
             if (!client) {
-                throw new error("no existe this client")
+                throw new Error("no existe this client")
             }
 
             // verificar si el vendedor edita
 
             if (client.seller.toString() !== ctx.user.id) {
-                throw new error("you have not credential")
+                throw new Error("you have not credential")
             }
             // guardar cliente ( el new :true  se usa para que retorne el nuevo cliente)
             client = await Client.findOneAndUpdate({ _id: id }, input, { new: true })
@@ -347,12 +348,12 @@ const resolvers = {
             let client = await Client.findById(id)
             // verificar si existe cliente
             if (!client) {
-                throw new error("no exist this client")
+                throw new Error("no exist this client")
             }
             // verificar si el vendedor edita
 
             if (client.seller.toString() !== ctx.user.id) {
-                throw new error("you have not credential")
+                throw new Error("you have not credential")
             }
 
             await Client.findOneAndDelete({ _id: id });
@@ -368,12 +369,12 @@ const resolvers = {
 
             if (!existClient) {
 
-                throw new error("no exist client")
+                throw new Error("no exist client")
             }
 
             // verificar si el cliente esta en el vendedor
             if (existClient.seller.toString() !== ctx.user.id) {
-                throw new error("you have not credential")
+                throw new Error("you have not credential")
             }
             //revisar que tenga stock
             for await (const article of input.order) {
@@ -383,7 +384,7 @@ const resolvers = {
 
 
                 if (article.stock > product.stock) {
-                    throw new error("exceeds the amount")
+                    throw new Error("exceds the amount")
                 } else {
                     //restamos la cantidad para que lo axtualice la bbdd
                     product.stock = product.stock - article.stock
@@ -408,7 +409,7 @@ const resolvers = {
             // verificar si existe pedido
             const existorder = await Order.findById(id)
             if (!existorder) {
-                throw new error("no existe this order")
+                throw new Error("no exist this order")
             }
             // verificar si existe cliente 
             //le pàsamos el id del cliente que lo lleva el input dentro y le hacemos una busqueda con el id del cliente del objeto de order
@@ -416,11 +417,11 @@ const resolvers = {
             const existClient = await Client.findById(client)
 
             if (!existClient) {
-                throw new error("no existe this client")
+                throw new Error("no exist this client")
             }
             // verificar si el vendedor edita y si el cliente pertenece al vendedor
             if (existClient.seller.toString() !== seller) {
-                throw new error("you have not credential")
+                throw new Error("you have not credential")
             }
 
             // revisar stock por si aumenta al editar  la cantidad
@@ -431,7 +432,7 @@ const resolvers = {
                     const product = await Product.findById(id)
 
                     if (article.stock > product.stock) {
-                        throw new error("exceeds the amount")
+                        throw new Error("exceeds the amount")
                     } else {
                         //restamos la cantidad para que lo axtualice la bbdd
                         product.stock = product.stock - article.stock
@@ -450,12 +451,12 @@ const resolvers = {
             let order = await Order.findById(id)
             // verificar si existe el pedido
             if (!order) {
-                throw new error("no exist this order")
+                throw new Error("no exist this order")
             }
             // verificar si el vendedor es el que lo borra
 
             if (order.seller.toString() !== ctx.user.id) {
-                throw new error("you have not credential")
+                throw new Error("you have not credential")
             }
 
             await Order.findOneAndDelete({ _id: id });
