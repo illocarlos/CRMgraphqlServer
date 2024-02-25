@@ -22,7 +22,6 @@ const resolvers = {
     //se suelen usar el segundo y tercero normalmente pero es para que sepas que existen
     Query: {
         getUser: async (_, { }, ctx) => {
-            console.log('---->', ctx)
             return ctx.user
         },
         //QUERY PRODUCT
@@ -95,6 +94,7 @@ const resolvers = {
         },
         getOrdersPerSeller: async (_, { }, ctx) => {
             const seller = ctx.user.id
+            console.log('---->', seller)
             try {
                 const orders = await Order.find({ seller })
                 return orders
@@ -359,7 +359,9 @@ const resolvers = {
             await Client.findOneAndDelete({ _id: id });
             return "Client deleted"
         },
+
         createOrder: async (_, { input }, ctx) => {
+            console.log('dentro del backend', input, ctx)
 
             const { client } = input
             // verificar si hay cliente
@@ -377,17 +379,19 @@ const resolvers = {
                 throw new Error("you have not credential")
             }
             //revisar que tenga stock
-            for await (const article of input.order) {
 
+
+            for await (const article of input.order) {
+                console.log('base de dato entroooo', article)
                 const { id } = article
                 const product = await Product.findById(id)
 
 
-                if (article.stock > product.stock) {
+                if (article.cuantity > product.stock) {
                     throw new Error("exceds the amount")
                 } else {
                     //restamos la cantidad para que lo axtualice la bbdd
-                    product.stock = product.stock - article.stock
+                    product.stock = product.stock - article.cuantity
                     await product.save()
                 }
             };
@@ -401,6 +405,10 @@ const resolvers = {
             const result = await newOrder.save()
             return result
         },
+
+
+
+
         updateOrder: async (_, { id, input }, ctx) => {
             const { client } = input
             const { order } = input

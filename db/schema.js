@@ -58,7 +58,7 @@ seller:ID
 type Order{
     id:ID  
     order :[OrderGroup]
-    total:Float
+    total:String
     state:String
     create:String
     client:ID
@@ -67,7 +67,9 @@ seller:ID
 }
 type OrderGroup{
     id:ID
-    stock:Int
+    name:String
+    price:Float
+    cuantity:Int
 }
 
 type TopClient{
@@ -111,13 +113,16 @@ phone:String
 
 input OrderInput{
 order:[OrderProductInput]
-total:Float
+total:String
 client:ID
 state:StateOrder
 }
+
 input OrderProductInput{
     id:ID
-    stock:Int
+    name:String
+    price:Float
+    cuantity:Int
 }
 
 #ESTE ENUM ES CE GRAPHQL ES LA FORMA DE CONECTAR UN INPUT CON OTRO 

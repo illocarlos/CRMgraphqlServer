@@ -10,7 +10,7 @@ const OrderSchema = mongoose.Schema({
     total: {
         type: Number,
         required: true,
-        trim: true
+
     },
     // este valor se usar para conectar el modelo pedido con el modelo client que es el cliente
     client: {
