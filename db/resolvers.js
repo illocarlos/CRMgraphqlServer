@@ -22,6 +22,8 @@ const resolvers = {
     //se suelen usar el segundo y tercero normalmente pero es para que sepas que existen
     Query: {
         getUser: async (_, { }, ctx) => {
+            console.log(ctx.user)
+
             return ctx.user
         },
         //QUERY PRODUCT
@@ -92,11 +94,12 @@ const resolvers = {
                 console.log(error)
             }
         },
+
         getOrdersPerSeller: async (_, { }, ctx) => {
             const seller = ctx.user.id
-            console.log('---->', seller)
+
             try {
-                const orders = await Order.find({ seller })
+                const orders = await Order.find({ seller }).populate('client')
                 return orders
             } catch (error) {
                 console.log(error)
@@ -157,9 +160,8 @@ const resolvers = {
                 //tercera verificacion sort se usa para ordenar en mongo
                 //en este caso estamos diciendole que cambie el orden del cliente con mayor cantidad en el total
                 {
-                    $sort: {
-                        total: { total: -1 }
-                    }
+                    $sort: { total: -1 }
+
                 }
             ])
 
@@ -172,7 +174,7 @@ const resolvers = {
                 {
                     $group: {
                         _id: "$seller",
-                        total: { $sum: 'total' }
+                        total: { $sum: '$total' }
                     }
                 },
                 {
@@ -261,7 +263,7 @@ const resolvers = {
 
             // crear token
             return {
-                token: createToken(existUser, process.env.TOKEN_SECRET, '24h')
+                token: createToken(existUser, process.env.TOKEN_SECRET, '8h')
             }
         },
 

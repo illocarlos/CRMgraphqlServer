@@ -61,7 +61,7 @@ type Order{
     total:String
     state:String
     create:String
-    client:ID
+    client:Client
 seller:ID
 
 }
@@ -89,6 +89,7 @@ surnames:String!
 email:String!
 password:String!
 }
+
 
 input ProductInput{
 name:String!
