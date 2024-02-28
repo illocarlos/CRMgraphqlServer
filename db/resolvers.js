@@ -187,7 +187,7 @@ const resolvers = {
                     }
                 },
                 {
-                    $limit: 3 //este  trae solo 3 vendedores de la base de dato
+                    $limit: 10 //este  trae solo 3 vendedores de la base de dato
                 },
                 {
                     $sort: { total: -1 } // este ordena los vendedores del que tiene mayor total
